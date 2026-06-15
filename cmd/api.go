@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type application struct {
-	condif config
+	config config
 }
 
 func (app *application) mount() http.Handler {
@@ -28,12 +29,19 @@ func (app *application) mount() http.Handler {
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("all good"))
-	}) // http.ListenAndServe(":3000", r)
+	})
 	return r
 }
 
 func (app *application) run(h http.Handler) error {
-
+	svr := &http.Server{
+		Addr:         app.config.addr,
+		Handler:      h,
+		WriteTimeout: time.Second * 30,
+		ReadTimeout:  time.Minute,
+	}
+	log.Printf("server has started at addr %s", app.config.addr)
+	return svr.ListenAndServe()
 }
 
 type config struct {

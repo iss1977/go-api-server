@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"log"
+	"os"
+)
 
 //import "fmt"
 
@@ -14,8 +17,9 @@ func main() {
 		config: cfg,
 	}
 
-	app := &application{}
-	handler := app.mount()
-	http.ListenAndServe(":3000", handler)
+	if err := api.run(api.mount()); err != nil {
+		log.Printf("server has failed to start %s", err)
+		os.Exit(1)
+	}
 
 }
